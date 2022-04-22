@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { Leaderboard, LeaderboardEntry, LeaderboardView } from './Leaderboard';
 import { Card, CardView } from './Card';
 import { makeEmojisDeck } from './Deck';
-// import { useKeyPress } from './useKeyPress';
+
+type Action =
+    | { type: 'reset' }
+    | { type: 'flipCard', card: Card }
+    | { type: 'clickAcknowledge' }
 
 //differentiated union type
 /** Whether a card has been turned, or two, or none yet.*/
@@ -11,18 +15,128 @@ type TurnStatus =
     | { title: 'oneTurned'; firstCard: Card }
     | { title: 'twoTurned'; firstCard: Card; secondCard: Card };
 
+interface GameState {
+    clickCount: number;
+    turnStatus: TurnStatus;
+    timeOfGameStart: number | null;
+    deck: Card[],
+    leaderboard: Leaderboard
+}
+
 export default function PairsGame() {
 
     const [timeSinceFirstLoad, setTimeSinceFirstLoad] = useState(0);
-    const [timeOfGameStart, setTimeOfGameStart] = useState<null | number>(null);
-    const [clickCount, setClickCount] = useState(0);
-    const [turnStatus, setTurnStatus] = useState<TurnStatus>({
-        title: 'noneTurned'
-    });
 
-    const [leaderboard, setLeaderboard] = useState<Leaderboard>([]);
-    const [deck, setDeck] = useState<Card[]>(makeEmojisDeck());
-    // const rPressed= useKeyPress("r", handleKeyDown);
+
+    function cardsRemain() {
+        return gameState.deck.filter(c => !c.isRemoved).length > 0;
+    }
+    function createNewLeaderboard(prevBoard: Leaderboard, entry: LeaderboardEntry): Leaderboard {
+        const newBoard = [...prevBoard, entry];
+        newBoard.sort((e1, e2) => e1.elapsedTime - e2.elapsedTime)
+        return newBoard;
+    }
+
+    function reducerFn(gameState: GameState, action: Action): GameState {
+        debugger;
+        function handleClickWhenTwoCardsFaceUp(gs: GameState): GameState {
+            if (gs.turnStatus.title !== 'twoTurned') {
+                return gameState;
+            }
+            const { firstCard: a, secondCard: b } = gs.turnStatus;
+            if (a.emoji === b.emoji) {
+                //TODO: don't mutate card states
+                a.isRemoved = true;
+                b.isRemoved = true;
+            }
+            //in either case, unflip.
+            a.isFaceUp = false;
+            b.isFaceUp = false;
+            if (!cardsRemain()) {
+                return resetGame(processScore(gs));
+            }
+            else {
+                return { ...gs, turnStatus: { title: 'noneTurned' } }
+            }
+        }
+
+        function resetGame(gs: GameState): GameState {
+            return {
+                ...gs, clickCount: 0, turnStatus: { title: 'noneTurned' }, timeOfGameStart: timeSinceFirstLoad
+            }
+        }
+
+        function processScore(gs: GameState): GameState {
+            const entry: LeaderboardEntry = {
+                elapsedTime: timeSinceFirstLoad - (gs.timeOfGameStart || 0),
+                clickCount: gs.clickCount,
+                at: new Date()
+            };
+            return { ...gs, leaderboard: createNewLeaderboard(gs.leaderboard, entry) }
+        }
+
+        const stateTitle = gameState.turnStatus.title;
+
+        switch (action.type) {
+
+            case 'reset': {
+                return resetGame(gameState);
+            }
+            case 'clickAcknowledge': {
+                return handleClickWhenTwoCardsFaceUp(gameState);
+            }
+            case 'flipCard': {
+                debugger;
+                if (stateTitle === 'twoTurned') {
+                    //should never be called
+                    return gameState;
+                }
+
+                if (action.card.isRemoved) {
+                    console.error('Clicked card which has been removed!');
+                    return gameState;
+                }
+
+                if (action.card.isFaceUp) {
+                    return gameState;
+                }
+
+                //todo: don't mutate
+                action.card.isFaceUp = true;
+
+                if (stateTitle === 'noneTurned') {
+                    return {
+                        ...gameState,
+                        turnStatus: { title: 'oneTurned', firstCard: action.card },
+                        clickCount: gameState.clickCount + 1
+                    }
+                }
+                if (stateTitle === 'oneTurned') {
+                    return {
+                        ...gameState,
+                        turnStatus: { title: 'twoTurned', firstCard: gameState.turnStatus.firstCard, secondCard: action.card },
+                        clickCount: gameState.clickCount + 1
+                    }
+                }
+
+                //TODO: remove this.  convince typechecker path is not reachable.
+                throw new Error('should never reach this point')
+            }
+            default:
+                throw new Error('should never reach this point')
+        }
+    }
+    const initialState: GameState = {
+        clickCount: 0,
+        turnStatus: {
+            title: 'noneTurned'
+        },
+        timeOfGameStart: null,
+        deck: makeEmojisDeck(),
+        leaderboard: []
+    }
+    const [gameState, dispatch] = useReducer(reducerFn, initialState);
+
 
     //increase timeSinceFirstLoad
     useEffect(() => {
@@ -32,103 +146,30 @@ export default function PairsGame() {
         return () => clearInterval(interval);
     }, []);
 
-    function resetGame() {
-        setClickCount(0);
-        setDeck(makeEmojisDeck());
-        setTurnStatus({ title: 'noneTurned' });
-        setTimeOfGameStart(timeSinceFirstLoad);
-    }
-
-    function cardsRemain() {
-        return deck.filter(c => !c.isRemoved).length > 0;
-    }
-
-    function processScore() {
-        const entry: LeaderboardEntry = { elapsedTime: timeSinceFirstLoad - (timeOfGameStart || 0), clickCount, at: new Date() };
-        setLeaderboard((prevBoard: Leaderboard) => {
-            const newBoard = [...prevBoard, entry];
-            newBoard.sort((e1, e2) => e1.elapsedTime - e2.elapsedTime)
-            return newBoard;
-        })
-    }
-
-    // function handleKeyDown() {
-    //     // Stale closure - this function definition is passed around and has closure over the var environment of a previous invocation of the PairsGame component function execution,
-    //     // with old values for turnStatus.
-    //     console.log('handleKeyDown in PairsGame', { turnStatus })
-    //     if (turnStatus.title === 'twoTurned') {
-    //         console.log('yes two are face up')
-    //         handleClickWhenTwoCardsFaceUp()
-    //     }
-    // }
-
-    function handleClickWhenTwoCardsFaceUp() {
-
-        if (turnStatus.title === 'twoTurned') {
-            const { firstCard: a, secondCard: b } = turnStatus;
-            if (a.emoji === b.emoji) {
-                //TODO: don't mutate card states
-                a.isRemoved = true;
-                b.isRemoved = true;
-            }
-            //in either case, unflip.
-            a.isFaceUp = false;
-            b.isFaceUp = false;
-            setTurnStatus({ title: 'noneTurned' });
-            if (!cardsRemain()) {
-                processScore();
-                resetGame();
-            }
-        }
-    }
 
     function handleClickOnMat() {
-        if (turnStatus.title === 'twoTurned') {
-            handleClickWhenTwoCardsFaceUp();
-            return;
+        if (gameState.turnStatus.title === 'twoTurned') {
+            dispatch({ type: 'clickAcknowledge' })
         }
     }
-
     function handleClickCard(c: Card) {
-        if (turnStatus.title === 'twoTurned') {
-            handleClickWhenTwoCardsFaceUp();
-            return;
-        }
-
-        if (c.isRemoved) {
-            console.error('Clicked card which has been removed!');
-            return;
-        }
-
-        if (c.isFaceUp) {
-            return;
-        }
-
-        c.isFaceUp = true;
-        setClickCount(prev => prev + 1);
-
-        if (turnStatus.title === 'noneTurned') {
-            setTurnStatus({ title: 'oneTurned', firstCard: c });
-            return;
-        }
-        if (turnStatus.title === 'oneTurned') {
-            setTurnStatus({ title: 'twoTurned', firstCard: turnStatus.firstCard, secondCard: c });
-            return;
+        if (gameState.turnStatus.title === 'twoTurned') {
+            dispatch({ type: 'clickAcknowledge' })
+        } else {
+            dispatch({ type: 'flipCard', card: c })
         }
     }
-
 
     return (
-        <div className="mat" onClick={handleClickOnMat}>
-            <div className="cardset">
-                {deck.map((c, ix) => (
-                    <CardView card={c} key={ix} handleClickCard={handleClickCard} />
-                ))}
-            </div>
-            <div>TurnStatus: {turnStatus.title}</div>
-            <div>Click count: {clickCount}</div>
-            {timeOfGameStart && <div>Elapsed Time: {timeSinceFirstLoad - timeOfGameStart}</div>}
-            <LeaderboardView leaderboard={leaderboard} />
+        <div className="mat" onClick={handleClickOnMat}> <div className="cardset">
+            {gameState.deck.map((c, ix) => (
+                <CardView card={c} key={ix} handleClickCard={handleClickCard} />
+            ))}
+        </div>
+            <div>TurnStatus: {gameState.turnStatus.title}</div>
+            <div>Click count: {gameState.clickCount}</div>
+            {gameState.timeOfGameStart && <div>Elapsed Time: {timeSinceFirstLoad - gameState.timeOfGameStart}</div>}
+            <LeaderboardView leaderboard={gameState.leaderboard} />
         </div>
     );
 }
