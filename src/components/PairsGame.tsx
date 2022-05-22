@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardView } from './Card';
 import { makeEmojisDeck } from './Deck';
 import { useMachine } from '@xstate/react';
@@ -6,13 +6,15 @@ import { inspect } from '@xstate/inspect';
 import { createMachine, assign } from "xstate";
 
 export interface PairsGameContext {
+    clickCount: number;
     firstCard: Card | null;
     secondCard: Card | null;
     allCards: Card[]
 }
 type PairEvents =
+    | { type: "advance" }
     | { type: "clickCard", card: Card }
-    | { type: "cheat" };
+    | { type: "startGame" };
 
 inspect({ iframe: false });
 const pairsMachine =
@@ -23,14 +25,22 @@ const pairsMachine =
         tsTypes: {} as import("./PairsGame.typegen").Typegen0,
         states: {
             AwaitStart: {
-                entry: "setupGame",
-                after: {
-                    1000:
-                        { target: "WaitFirstCard" }
+                entry: assign({
+                    clickCount: 0,
+                    firstCard: null,
+                    secondCard: null,
+                    allCards: []
+                }),
+                on: {
+                    startGame: {
+                        target: "WaitFirstCard",
+                    },
                 },
             },
             WaitFirstCard: {
-                entry: assign({}),
+                entry: assign({
+                    clickCount: (ctx: PairsGameContext, event) => ctx.clickCount + 1,
+                }),
                 on: {
                     clickCard: {
                         target: "WaitSecondCard",
@@ -41,7 +51,6 @@ const pairsMachine =
                 entry: "afterFirstCard",
                 on: {
                     clickCard: {
-                        cond: "isDifferentCard",
                         target: "GotSecondCard",
                     },
                 },
@@ -49,7 +58,7 @@ const pairsMachine =
             GotSecondCard: {
                 entry: "afterSecondCard",
                 after: {
-                    400: [
+                    800: [
                         {
                             target: "HandlePairSuccess",
                             cond: "pairMatch"
@@ -61,7 +70,7 @@ const pairsMachine =
             HandlePairFailure: {
                 entry: "onPairFailure",
                 after: {
-                    100: {
+                    1000: {
                         target: "WaitFirstCard",
                     }
                 }
@@ -69,7 +78,7 @@ const pairsMachine =
             HandlePairSuccess: {
                 entry: "onPairSuccess",
                 after: {
-                    1: [
+                    300: [
                         {
                             target: "GameOverAndReview",
                             cond: "isGameOver"
@@ -80,11 +89,10 @@ const pairsMachine =
                 }
             },
             GameOverAndReview: {
-                entry: () => console.log("GAME OVER!"),
-                after: {
-                    2000: {
-                        target: "AwaitStart"
-                    }
+                on: {
+                    advance: {
+                        target: "AwaitStart",
+                    },
                 },
             },
         },
@@ -92,18 +100,10 @@ const pairsMachine =
         {
             guards: {
                 pairMatch: (ctx, event) => ctx.firstCard?.emoji === ctx.secondCard?.emoji,
-                isGameOver: (ctx, event) => ctx.allCards.every(c => c.isRemoved),
-                isDifferentCard: (ctx, event) => ctx.firstCard ? (ctx.firstCard.id !== event.card.id) : false
+                isGameOver: (ctx, event) => ctx.allCards.every(c => c.isRemoved)
             },
             actions: {
-                setupGame: assign(() => ({
-                    firstCard: null,
-                    secondCard: null,
-                    allCards: makeEmojisDeck()
-                })),
                 onPairSuccess: assign((ctx, event) => {
-                    //TODO: can't we have TS know that first and second card are
-                    // non-null from the action that gets us here?
                     if (ctx.firstCard && ctx.secondCard) {
                         ctx.firstCard.isRemoved = true;
                         ctx.secondCard.isRemoved = true;
@@ -118,12 +118,14 @@ const pairsMachine =
                     return { firstCard: null, secondCard: null }
                 }),
                 afterFirstCard: assign({
+                    clickCount: (ctx, event) => ctx.clickCount + 1,
                     firstCard: (ctx, event) => {
                         event.card.isFaceUp = true
                         return event.card
                     }
                 })
                 , afterSecondCard: assign({
+                    clickCount: (ctx, event) => ctx.clickCount + 1,
                     secondCard: (ctx, event) => {
                         event.card.isFaceUp = true
                         return event.card
@@ -133,26 +135,119 @@ const pairsMachine =
         });
 
 
+type TurnStatus =
+    | { title: 'noneTurned' }
+    | { title: 'oneTurned'; firstCard: Card }
+    | { title: 'twoTurned'; firstCard: Card; secondCard: Card };
+
 export default function PairsGame() {
     const [current, send] = useMachine(pairsMachine, { devTools: true });
+    // const active = current.matches("active");
 
-    const { allCards } = current.context;
+    const { clickCount } = current.context;
     const stateName = current.value;
 
+    const [turnStatus, setTurnStatus] = useState<TurnStatus>({
+        title: 'noneTurned'
+    });
+
+    const [deck, setDeck] = useState<Card[]>(makeEmojisDeck());
+    // const rPressed= useKeyPress("r", handleKeyDown);
+
+
+
+    function resetGame() {
+        // setClickCount(0);
+        setDeck(makeEmojisDeck());
+        setTurnStatus({ title: 'noneTurned' });
+    }
+
+    function cardsRemain() {
+        return deck.filter(c => !c.isRemoved).length > 0;
+    }
+
+
+    // function handleKeyDown() {
+    //     // Stale closure - this function definition is passed around and has closure over the var environment of a previous invocation of the PairsGame component function execution,
+    //     // with old values for turnStatus.
+    //     console.log('handleKeyDown in PairsGame', { turnStatus })
+    //     if (turnStatus.title === 'twoTurned') {
+    //         console.log('yes two are face up')
+    //         handleClickWhenTwoCardsFaceUp()
+    //     }
+    // }
+
+    function handleClickWhenTwoCardsFaceUp() {
+
+        if (turnStatus.title === 'twoTurned') {
+            const { firstCard: a, secondCard: b } = turnStatus;
+            if (a.emoji === b.emoji) {
+                //TODO: don't mutate card states
+                a.isRemoved = true;
+                b.isRemoved = true;
+            }
+            //in either case, unflip.
+            a.isFaceUp = false;
+            b.isFaceUp = false;
+            setTurnStatus({ title: 'noneTurned' });
+            if (!cardsRemain()) {
+                resetGame();
+            }
+        }
+    }
+
+    function handleClickOnMat() {
+        if (turnStatus.title === 'twoTurned') {
+            handleClickWhenTwoCardsFaceUp();
+            return;
+        }
+    }
+
+    function handleClickCard(c: Card) {
+        if (turnStatus.title === 'twoTurned') {
+            handleClickWhenTwoCardsFaceUp();
+            return;
+        }
+
+        if (c.isRemoved) {
+            console.error('Clicked card which has been removed!');
+            return;
+        }
+
+        if (c.isFaceUp) {
+            return;
+        }
+
+        c.isFaceUp = true;
+
+        if (turnStatus.title === 'noneTurned') {
+            setTurnStatus({ title: 'oneTurned', firstCard: c });
+            return;
+        }
+        if (turnStatus.title === 'oneTurned') {
+            setTurnStatus({ title: 'twoTurned', firstCard: turnStatus.firstCard, secondCard: c });
+            return;
+        }
+    }
+
     return (
-        <div className="mat" onClick={() => { }}>
+        <div className="mat" onClick={handleClickOnMat}>
             <div className="cardset">
-                {allCards.map((c, ix) => (
+                {deck.map((c, ix) => (
                     <CardView card={c} key={ix} handleClickCard={
                         () => {
+                            console.log("clicked card: ", c)
                             send({ type: "clickCard", card: c });
                         }
                     } />
                 ))}
             </div>
-            {stateName === "GameOverAndReview" && <h2>Game Over!</h2>}
+            {stateName === "AwaitStart" && <button onClick={() => send("startGame")} >Start game</button>}
             <div>Game State: {current.value}</div>
-            {false && <pre>{JSON.stringify(current, null, 2)}</pre>}
+            <div>First Card: {current.context.firstCard?.emoji}</div>
+            <div>Second Card: {current.context.secondCard?.emoji}</div>
+            <div>Click count: {clickCount}</div>
+            {true && <pre>{JSON.stringify(current, null, 2)}</pre>}
 
         </div>
     );
