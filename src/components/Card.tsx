@@ -1,8 +1,8 @@
 export interface Card {
-    isFaceUp: boolean;
-    emoji: string;
-    id: number;
-    isRemoved: boolean;
+    readonly isFaceUp: boolean;
+    readonly emoji: string;
+    readonly id: number;
+    readonly isRemoved: boolean;
 }
 
 export interface CardProps {

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Leaderboard, LeaderboardEntry, LeaderboardView } from './Leaderboard';
 import { Card, CardView } from './Card';
 import { makeEmojisDeck } from './Deck';
+import { useImmer } from 'use-immer';
 // import { useKeyPress } from './useKeyPress';
 
 //differentiated union type
@@ -21,7 +22,7 @@ export default function PairsGame() {
     });
 
     const [leaderboard, setLeaderboard] = useState<Leaderboard>([]);
-    const [deck, setDeck] = useState<Card[]>(makeEmojisDeck());
+    const [deck, setDeck] = useImmer<Card[]>(makeEmojisDeck());
     // const rPressed= useKeyPress("r", handleKeyDown);
 
     //increase timeSinceFirstLoad
@@ -65,15 +66,21 @@ export default function PairsGame() {
     function handleClickWhenTwoCardsFaceUp() {
 
         if (turnStatus.title === 'twoTurned') {
-            const { firstCard: a, secondCard: b } = turnStatus;
-            if (a.emoji === b.emoji) {
-                //TODO: don't mutate card states
-                a.isRemoved = true;
-                b.isRemoved = true;
-            }
-            //in either case, unflip.
-            a.isFaceUp = false;
-            b.isFaceUp = false;
+            const { firstCard, secondCard } = turnStatus;
+            setDeck((draft) => {
+                const c1 = draft.find(dc => dc.id === firstCard.id)!
+                const c2 = draft.find(dc => dc.id === secondCard.id)!
+
+                if (firstCard.emoji === secondCard.emoji) {
+                    c1.isRemoved = true
+                    c2.isRemoved = true
+                }
+                //in either case, unflip.
+                c1.isFaceUp = false;
+                c2.isFaceUp = false;
+
+                console.log({ firstCard, secondCard, deck })
+            })
             setTurnStatus({ title: 'noneTurned' });
             if (!cardsRemain()) {
                 processScore();
@@ -104,7 +111,11 @@ export default function PairsGame() {
             return;
         }
 
-        c.isFaceUp = true;
+        setDeck(draft => {
+            const card = draft.find(dc => dc.id === c.id)!
+            card.isFaceUp = true;
+        })
+
         setClickCount(prev => prev + 1);
 
         if (turnStatus.title === 'noneTurned') {
