@@ -41,7 +41,7 @@ export default function PairsGame() {
     }
 
     function cardsRemain() {
-        return deck.filter(c => !c.isRemoved).length > 0;
+        return deck.filter(c => c.status !== "removed").length > 0;
     }
 
     function processScore() {
@@ -72,12 +72,13 @@ export default function PairsGame() {
                 const c2 = draft.find(dc => dc.id === secondCard.id)!
 
                 if (firstCard.emoji === secondCard.emoji) {
-                    c1.isRemoved = true
-                    c2.isRemoved = true
+                    c1.status = "removed"
+                    c2.status = "removed"
+                } else {
+                    //otherwise, flip back down
+                    c1.status = "face-down";
+                    c2.status = "face-down";
                 }
-                //in either case, unflip.
-                c1.isFaceUp = false;
-                c2.isFaceUp = false;
 
                 console.log({ firstCard, secondCard, deck })
             })
@@ -102,18 +103,13 @@ export default function PairsGame() {
             return;
         }
 
-        if (c.isRemoved) {
-            console.error('Clicked card which has been removed!');
-            return;
-        }
-
-        if (c.isFaceUp) {
+        if (c.status !== "face-down") {
             return;
         }
 
         setDeck(draft => {
             const card = draft.find(dc => dc.id === c.id)!
-            card.isFaceUp = true;
+            card.status = "face-up"
         })
 
         setClickCount(prev => prev + 1);

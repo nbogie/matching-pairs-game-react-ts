@@ -13,11 +13,8 @@ test("makeEmojisDeck", () => {
     expect(emojisUsed[2]).toEqual(emojisUsed[3]);
 });
 
-test("face down all", () => {
-    expect(makeEmojisDeck().every(c => !c.isFaceUp)).toBe(true);
+test("face down all at start", () => {
+    expect(makeEmojisDeck().every(c => c.status === "face-down")).toBe(true);
 
 
-})
-test("not removed, all", () => {
-    expect(makeEmojisDeck().every(c => !c.isRemoved)).toBe(true);
 })

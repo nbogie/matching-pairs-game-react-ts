@@ -1,8 +1,9 @@
+type Facing = "face-up" | "face-down";
+
 export interface Card {
-    readonly isFaceUp: boolean;
+    readonly status: "removed" | Facing;
     readonly emoji: string;
     readonly id: number;
-    readonly isRemoved: boolean;
 }
 
 export interface CardProps {
@@ -17,14 +18,10 @@ export function CardView(props: CardProps) {
                 props.handleClickCard(props.card);
             }}
             className={
-                'card ' +
-                (props.card.isFaceUp ? 'face-up' : '') +
-                ' ' +
-                (props.card.isRemoved ? 'removed' : '')
+                'card ' + props.card.status
             }
         >
-            {!props.card.isRemoved && props.card.isFaceUp && props.card.emoji}
-            {/* {!props.card.isRemoved && props.card.emoji} */}
+            {props.card.status === "face-up" && props.card.emoji}
         </div>
     );
 }

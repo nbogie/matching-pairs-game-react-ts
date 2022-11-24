@@ -7,7 +7,7 @@ export function makeEmojisDeck(): Card[] {
         .slice(0, 8); //take 8 emojis.  We'll instantiate double to make the deck.
 
     function makeEmojiCard(e: Emoji, id: number): Card {
-        return { emoji: e, id, isFaceUp: false, isRemoved: false };
+        return { emoji: e, id, status: "face-down" };
     }
 
     return shuffle(
