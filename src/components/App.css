@@ -76,3 +76,7 @@ p {
 button.hide {
   display: none;
 }
+
+.card {
+  user-select: none;
+}
