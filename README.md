@@ -1,4 +1,13 @@
-# Getting Started with Create React App
+# Matching pairs game in react
+
+This has various versions, in branches:
+
+-   main: State is held in a collection of individual pieces, maintained by useState hooks
+-   feature-use-reducer: Uses a single useReducer standard react hook instead of multiple useState hooks. Immer is not used.
+-   feature-use-immer - Uses various useState hooks one of which is replaced with a useImmer hook to allow changes to be expressed as mutations. useReducer is not used.
+-   use-immer-with-reducer: As per use-reducer, but the entire reducer function is re-written as a series of mutations on the `Draft<GameState>` object provided by immer's produce function.
+
+# Original CRA text - Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
