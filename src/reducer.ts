@@ -1,11 +1,11 @@
 import { Card } from "./card";
+import { makeEmojisDeck } from "./components/Deck";
 import { GameState } from "./gameState";
 
 export function reducerFn(gameState: GameState, action: Action): GameState {
 
 
     const stateTitle = gameState.turnStatus.title;
-    console.log({ gameState })
 
     switch (action.type) {
 
@@ -18,7 +18,6 @@ export function reducerFn(gameState: GameState, action: Action): GameState {
         }
 
         case 'flipCard': {
-            debugger
             if (stateTitle === 'twoTurned') {
                 //should never be called
                 return gameState;
@@ -33,23 +32,26 @@ export function reducerFn(gameState: GameState, action: Action): GameState {
                 return gameState;
             }
 
-            //todo: don't mutate
-            action.card.isFaceUp = true;
+
 
             if (stateTitle === 'noneTurned') {
-                console.log("in NONE turned")
+                //Don't mutate the card - this will cause the reducer not to be pure, and second time through processing 
+                //(in strict mode) the action card will be face up, causing issues
+                const newDeck = replaceCard(gameState.deck, action.card.id, (c: Card) => ({ ...c, isFaceUp: true }))
                 return {
                     ...gameState,
+                    deck: newDeck,
                     turnStatus: { title: 'oneTurned', firstCard: action.card },
                     clickCount: gameState.clickCount + 1
                 }
             }
 
             if (stateTitle === 'oneTurned') {
-                console.log("in one turned")
+                const newDeck = replaceCard(gameState.deck, action.card.id, (c: Card) => ({ ...c, isFaceUp: true }))
 
                 return {
                     ...gameState,
+                    deck: newDeck,
                     turnStatus: { title: 'twoTurned', firstCard: gameState.turnStatus.firstCard, secondCard: action.card },
                     clickCount: gameState.clickCount + 1
                 }
@@ -68,37 +70,48 @@ function handleClickWhenTwoCardsFaceUp(gs: GameState): GameState {
     if (gs.turnStatus.title !== 'twoTurned') {
         return gs;
     }
+
     const { firstCard: a, secondCard: b } = gs.turnStatus;
+    let nextDeck = gs.deck;
     if (a.emoji === b.emoji) {
-        //TODO: don't mutate card states
-        a.isRemoved = true;
-        b.isRemoved = true;
+        nextDeck = replaceCard(nextDeck, a.id, (c) => ({ ...c, isRemoved: true }))
+        nextDeck = replaceCard(nextDeck, b.id, (c) => ({ ...c, isRemoved: true }))
     }
+
     //in either case, unflip.
-    a.isFaceUp = false;
-    b.isFaceUp = false;
-    if (!cardsRemain(gs)) {
+    nextDeck = replaceCard(nextDeck, a.id, (c) => ({ ...c, isFaceUp: false }))
+    nextDeck = replaceCard(nextDeck, b.id, (c) => ({ ...c, isFaceUp: false }))
+
+    if (!cardsRemain(nextDeck)) {
         return resetGame(gs);
     }
     else {
-        return { ...gs, turnStatus: { title: 'noneTurned' } }
+        return { ...gs, deck: nextDeck, turnStatus: { title: 'noneTurned' } }
     }
 }
-function cardsRemain(gs: GameState): boolean {
-    return gs.deck.filter((c: Card) => !c.isRemoved).length > 0;
+function cardsRemain(deck: Card[]): boolean {
+    return deck.filter((c: Card) => !c.isRemoved).length > 0;
 }
 
 
 function resetGame(gs: GameState): GameState {
     return {
         ...gs,
+        deck: makeEmojisDeck(),
         clickCount: 0,
         turnStatus: { title: 'noneTurned' }
     }
 }
 
-export type Action = { type: 'reset'; } |
-{ type: 'flipCard'; card: Card; } |
-{ type: 'clickAcknowledge'; };
-//differentiated union type
-/** Whether a card has been turned, or two, or none yet.*/
+function replaceCard(cards: Card[], soughtId: number, replacerFn: (c: Card) => Card) {
+    const newArray = [...cards];
+    const ix = newArray.findIndex(c => c.id === soughtId);
+    newArray[ix] = replacerFn(newArray[ix]);
+    return newArray;
+}
+
+
+export type Action =
+    | { type: 'reset'; }
+    | { type: 'flipCard'; card: Card; }
+    | { type: 'clickAcknowledge'; };
