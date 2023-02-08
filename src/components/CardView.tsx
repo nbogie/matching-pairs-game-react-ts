@@ -1,4 +1,4 @@
-import { Card } from "../card";
+import { Card } from "../gameCore/card";
 
 export interface CardProps {
     handleClickCard: (c: Card) => void;
