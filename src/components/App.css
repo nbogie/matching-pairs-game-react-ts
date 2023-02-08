@@ -1,5 +1,4 @@
 body {
-  margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
@@ -14,6 +13,12 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+#root {
+  display: flex;
+  place-items: center;
+  height: 100vh;
 }
 
 h1,
@@ -50,13 +55,14 @@ p {
 }
 
 .mat {
+
   margin-top: 20px;
-  border: 8px solid #444;
+  border: 8px solid #44444470;
   border-radius: 8px;
   padding: 10px;
   min-width: 410px;
   max-width: 410px;
-  box-shadow: 4px 1px 10px 10px black;
+  box-shadow: 4px 1px 10px 10px rgba(0, 0, 0, 0.3);
 }
 
 .cardset {
