@@ -1,7 +1,7 @@
 import { Card } from "../gameCore/card";
 import { GameState } from "../gameCore/gameState";
 import { replaceCard } from "./reducer";
-import { resetGame } from "./resetGame";
+import { handleResetGame } from "./handleResetGame";
 
 export function handleClickWhenTwoCardsFaceUp(gs: GameState): GameState {
     if (gs.turnStatus.title !== 'twoTurned') {
@@ -20,7 +20,7 @@ export function handleClickWhenTwoCardsFaceUp(gs: GameState): GameState {
     nextDeck = replaceCard(nextDeck, b.id, (c) => ({ ...c, isFaceUp: false }));
 
     if (!cardsRemain(nextDeck)) {
-        return resetGame(gs);
+        return handleResetGame(gs);
     }
     else {
         return { ...gs, deck: nextDeck, turnStatus: { title: 'noneTurned' } };

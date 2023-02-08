@@ -3,7 +3,7 @@ import { GameState } from "../gameCore/gameState";
 
 
 
-export function resetGame(gs: GameState): GameState {
+export function handleResetGame(gs: GameState): GameState {
     return {
         ...gs,
         deck: makeEmojisDeck(),

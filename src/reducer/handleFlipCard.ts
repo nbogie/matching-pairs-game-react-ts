@@ -1,8 +1,9 @@
 import { Card } from "../gameCore/card";
 import { GameState } from "../gameCore/gameState";
-import { FlipCardAction, replaceCard } from "./reducer";
+import { replaceCard } from "./reducer";
+import { FlipCardAction } from "./actions";
 
-export function flipCard(gameState: GameState, action: FlipCardAction): GameState {
+export function handleFlipCard(gameState: GameState, action: FlipCardAction): GameState {
     const stateTitle = gameState.turnStatus.title;
 
     if (stateTitle === 'twoTurned') {

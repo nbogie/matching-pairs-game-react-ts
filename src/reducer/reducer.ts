@@ -1,15 +1,16 @@
 import { Card } from "../gameCore/card";
 import { GameState } from "../gameCore/gameState";
-import { flipCard } from "./flipCard";
+import { Action } from "./actions";
+import { handleFlipCard } from "./handleFlipCard";
 import { handleClickWhenTwoCardsFaceUp } from "./handleClickWhenTwoCardsFaceUp";
-import { resetGame } from "./resetGame";
+import { handleResetGame } from "./handleResetGame";
 
 export function reducerFn(gameState: GameState, action: Action): GameState {
 
     switch (action.type) {
 
         case 'reset': {
-            return resetGame(gameState);
+            return handleResetGame(gameState);
         }
 
         case 'clickAcknowledge': {
@@ -17,7 +18,7 @@ export function reducerFn(gameState: GameState, action: Action): GameState {
         }
 
         case 'flipCard': {
-            return flipCard(gameState, action);
+            return handleFlipCard(gameState, action);
         }
         default:
             throw new Error('should never reach this point')
@@ -31,8 +32,4 @@ export function replaceCard(cards: Card[], soughtId: number, replacerFn: (c: Car
     return newArray;
 }
 
-export type FlipCardAction = { type: 'flipCard'; card: Card; }
-export type Action =
-    | { type: 'reset'; }
-    | FlipCardAction
-    | { type: 'clickAcknowledge'; };
+
