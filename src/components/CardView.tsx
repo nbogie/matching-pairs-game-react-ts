@@ -1,9 +1,4 @@
-export interface Card {
-    isFaceUp: boolean;
-    emoji: string;
-    id: number;
-    isRemoved: boolean;
-}
+import { Card } from "../card";
 
 export interface CardProps {
     handleClickCard: (c: Card) => void;

@@ -1,4 +1,4 @@
-import { Card } from "./Card";
+import { Card } from "../card";
 import emojis, { Emoji } from '../emojis';
 
 export function makeEmojisDeck(): Card[] {
