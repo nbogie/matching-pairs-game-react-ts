@@ -1,117 +1,124 @@
 import { Card } from "./card";
 import { makeEmojisDeck } from "./components/Deck";
 import { GameState } from "./gameState";
+import produce, { Draft } from "immer"
 
 export function reducerFn(gameState: GameState, action: Action): GameState {
 
+    //use immer's produce() function to allow us to manipulate a draftGameState and magically get a 
+    //corresponding newly-built gameState object back with the appropriate changes.
 
-    const stateTitle = gameState.turnStatus.title;
+    return produce(gameState, draftGameState => {
 
-    switch (action.type) {
+        switch (action.type) {
 
-        case 'reset': {
-            return resetGame(gameState);
+            case 'reset': {
+                resetGame(draftGameState);
+                return;
+            }
+
+            case 'clickAcknowledge': {
+                handleClickWhenTwoCardsFaceUp(draftGameState);
+                return;
+            }
+
+            case 'flipCard':
+                handleFlipCard(draftGameState, action);
+                return;
+
+            default:
+                throw new Error('should never reach this point')
         }
+    })
+}
+function handleFlipCard(draftGameState: Draft<GameState>, action: FlipCardAction) {
+    const stateTitle = draftGameState.turnStatus.title;
 
-        case 'clickAcknowledge': {
-            return handleClickWhenTwoCardsFaceUp(gameState);
-        }
-
-        case 'flipCard': {
-            if (stateTitle === 'twoTurned') {
-                //should never be called
-                return gameState;
-            }
-
-            if (action.card.isRemoved) {
-                console.error('Clicked card which has been removed!');
-                return gameState;
-            }
-
-            if (action.card.isFaceUp) {
-                return gameState;
-            }
-
-
-
-            if (stateTitle === 'noneTurned') {
-                //Don't mutate the card - this will cause the reducer not to be pure, and second time through processing 
-                //(in strict mode) the action card will be face up, causing issues
-                const newDeck = replaceCard(gameState.deck, action.card.id, (c: Card) => ({ ...c, isFaceUp: true }))
-                return {
-                    ...gameState,
-                    deck: newDeck,
-                    turnStatus: { title: 'oneTurned', firstCard: action.card },
-                    clickCount: gameState.clickCount + 1
-                }
-            }
-
-            if (stateTitle === 'oneTurned') {
-                const newDeck = replaceCard(gameState.deck, action.card.id, (c: Card) => ({ ...c, isFaceUp: true }))
-
-                return {
-                    ...gameState,
-                    deck: newDeck,
-                    turnStatus: { title: 'twoTurned', firstCard: gameState.turnStatus.firstCard, secondCard: action.card },
-                    clickCount: gameState.clickCount + 1
-                }
-            }
-
-            //TODO: remove this.  convince typechecker path is not reachable.
-            throw new Error('should never reach this point')
-        }
-        default:
-            throw new Error('should never reach this point')
+    if (stateTitle === 'twoTurned') {
+        //should never be called
+        return;
     }
+
+    if (action.card.isRemoved) {
+        console.error('Clicked card which has been removed!');
+        return;
+    }
+
+    if (action.card.isFaceUp) {
+        return;
+    }
+
+    if (draftGameState.turnStatus.title === 'noneTurned') {
+        //Don't mutate the card - this will cause the reducer not to be pure, and second time through processing 
+        //(in strict mode) the action card will be face up, causing issues
+        const card = draftGameState.deck.find(c => c.id === action.card.id)!
+        card.isFaceUp = true;
+        draftGameState.turnStatus = { title: 'oneTurned', firstCard: action.card };
+        draftGameState.clickCount++
+        return;
+    }
+
+    if (draftGameState.turnStatus.title === 'oneTurned') {
+        const card = draftGameState.deck.find(c => c.id === action.card.id)!
+        card.isFaceUp = true;
+        draftGameState.turnStatus = {
+            title: 'twoTurned',
+            firstCard: draftGameState.turnStatus.firstCard,
+            secondCard: action.card
+        };
+        draftGameState.clickCount++;
+        return
+    }
+
+    //TODO: remove this.  convince typechecker path is not reachable.
+    throw new Error('should never reach this point')
+
 }
 
 
-function handleClickWhenTwoCardsFaceUp(gs: GameState): GameState {
-    if (gs.turnStatus.title !== 'twoTurned') {
-        return gs;
+function handleClickWhenTwoCardsFaceUp(draftGameState: Draft<GameState>): void {
+
+    if (draftGameState.turnStatus.title !== 'twoTurned') {
+        return;
     }
 
-    const { firstCard: a, secondCard: b } = gs.turnStatus;
-    let nextDeck = gs.deck;
+    const { firstCard: a, secondCard: b } = draftGameState.turnStatus;
+    //we want to manipulate the cards in the deck, not the cards in the turnStatus
+    const pickedCardsInDeck = draftGameState.deck.filter(c => [a.id, b.id].includes(c.id));
+
     if (a.emoji === b.emoji) {
-        nextDeck = replaceCard(nextDeck, a.id, (c) => ({ ...c, isRemoved: true }))
-        nextDeck = replaceCard(nextDeck, b.id, (c) => ({ ...c, isRemoved: true }))
+        pickedCardsInDeck.forEach(c => c.isRemoved = true)
     }
 
     //in either case, unflip.
-    nextDeck = replaceCard(nextDeck, a.id, (c) => ({ ...c, isFaceUp: false }))
-    nextDeck = replaceCard(nextDeck, b.id, (c) => ({ ...c, isFaceUp: false }))
+    pickedCardsInDeck.forEach(c => c.isFaceUp = false)
 
-    if (!cardsRemain(nextDeck)) {
-        return resetGame(gs);
+    if (!cardsRemain(draftGameState.deck)) {
+        resetGame(draftGameState);
+        return;
     }
     else {
-        return { ...gs, deck: nextDeck, turnStatus: { title: 'noneTurned' } }
+        draftGameState.turnStatus = { title: 'noneTurned' };
+        return;
     }
 }
+
 function cardsRemain(deck: Card[]): boolean {
     return deck.filter((c: Card) => !c.isRemoved).length > 0;
 }
 
 
-function resetGame(gs: GameState): GameState {
-    return {
-        ...gs,
-        deck: makeEmojisDeck(),
-        clickCount: 0,
-        turnStatus: { title: 'noneTurned' }
-    }
+function resetGame(gs: Draft<GameState>): void {
+    gs.deck = makeEmojisDeck();
+    gs.clickCount = 0;
+    gs.turnStatus = { title: 'noneTurned' }
 }
 
-function replaceCard(cards: Card[], soughtId: number, replacerFn: (c: Card) => Card) {
-    const newArray = [...cards];
-    const ix = newArray.findIndex(c => c.id === soughtId);
-    newArray[ix] = replacerFn(newArray[ix]);
-    return newArray;
-}
-
+type FlipCardAction = { type: 'flipCard'; card: Card; }
+type AcknowledgeAction = { type: 'clickAcknowledge'; }
+type ResetAction = { type: 'reset' }
 
 export type Action =
-    | { type: 'reset'; }
-    | { type: 'flipCard'; card: Card; }
-    | { type: 'clickAcknowledge'; };
+    | ResetAction
+    | FlipCardAction
+    | AcknowledgeAction;
