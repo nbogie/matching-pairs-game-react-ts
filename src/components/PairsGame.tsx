@@ -33,11 +33,6 @@ export default function PairsGame() {
         }
     }
 
-    function handleClickAcknowledge() {
-        if (gameState.turnStatus.title === 'twoTurned') {
-            dispatch({ type: "clickAcknowledge" })
-        }
-    }
 
     return (
         <div className="mat" onClick={handleClickOnMat}>
@@ -48,7 +43,6 @@ export default function PairsGame() {
             </div>
             <div>TurnStatus: {gameState.turnStatus.title}</div>
             <div>Click count: {gameState.clickCount}</div>
-            {gameState.turnStatus.title === "twoTurned" && <button onClick={handleClickAcknowledge}>Acknowledge</button>}
         </div>
     );
 }
