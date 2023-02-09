@@ -13,8 +13,8 @@ export interface CardProps {
 }
 export function CardView(props: CardProps) {
     const [springs, api] = useSpring(() => ({
-        from: { scale: 1.2, transform: "rotateY(180deg)" },
-        to: { scale: 1, }
+        from: { scale: 1.2, transform: "rotateY(0deg)" },
+        to: { scale: 1 }
     })
     )
 

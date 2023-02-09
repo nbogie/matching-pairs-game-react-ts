@@ -6,6 +6,7 @@ This has various versions, in branches:
 -   feature-use-reducer: Uses a single useReducer standard react hook instead of multiple useState hooks. Immer is not used.
 -   feature-use-immer - Uses various useState hooks one of which is replaced with a useImmer hook to allow changes to be expressed as mutations. useReducer is not used.
 -   use-immer-with-reducer: As per use-reducer, but the entire reducer function is re-written as a series of mutations on the `Draft<GameState>` object provided by immer's produce function.
+-   feature-react-spring-basics: has simple animation with react-spring, and simple sounds with use-sound. Has only the simplest state organisation.
 
 # Original CRA text - Getting Started with Create React App
 

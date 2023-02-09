@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Leaderboard, LeaderboardEntry, LeaderboardView } from './Leaderboard';
 import { Card, CardView } from './Card';
 import { makeEmojisDeck } from './Deck';
+import useSound from 'use-sound';
+import matchSound from "../sounds/match.wav";
 // import { useKeyPress } from './useKeyPress';
 
 //differentiated union type
@@ -10,9 +12,9 @@ type TurnStatus =
     | { title: 'noneTurned' }
     | { title: 'oneTurned'; firstCard: Card }
     | { title: 'twoTurned'; firstCard: Card; secondCard: Card };
-
 export default function PairsGame() {
 
+    const [play] = useSound(matchSound);
     const [deck, setDeck] = useState<Card[]>(makeEmojisDeck());
     const [turnStatus, setTurnStatus] = useState<TurnStatus>({
         title: 'noneTurned'
@@ -129,6 +131,10 @@ export default function PairsGame() {
         }
         if (status === 'oneTurned') {
             setTurnStatus({ title: 'twoTurned', firstCard: turnStatus.firstCard, secondCard: c });
+            if (turnStatus.firstCard.emoji === c.emoji) {
+                play();
+            }
+
             return true;
         }
         return false;
