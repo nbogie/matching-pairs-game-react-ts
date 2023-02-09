@@ -1,3 +1,5 @@
+import { useSpring, animated } from '@react-spring/web'
+
 export interface Card {
     isFaceUp: boolean;
     emoji: string;
@@ -6,15 +8,26 @@ export interface Card {
 }
 
 export interface CardProps {
-    handleClickCard: (c: Card) => void;
+    handleClickCard: (c: Card) => boolean;
     card: Card;
 }
 export function CardView(props: CardProps) {
+    const [springs, api] = useSpring(() => ({
+        from: { scale: 1.2, transform: "rotateY(180deg)" },
+        to: { scale: 1, }
+    })
+    )
+
     return (
-        <div
+        <animated.div
+            style={{ ...springs }}
             onClick={(event) => {
                 event.stopPropagation();
-                props.handleClickCard(props.card);
+                const revealedACard = props.handleClickCard(props.card);
+                revealedACard && api.start({
+                    from: { scale: 1.2, transform: "rotateY(0deg)" },
+                    to: { scale: 1, transform: "rotateY(180deg)" }
+                });
             }}
             className={
                 'card ' +
@@ -25,6 +38,6 @@ export function CardView(props: CardProps) {
         >
             {!props.card.isRemoved && props.card.isFaceUp && props.card.emoji}
             {/* {!props.card.isRemoved && props.card.emoji} */}
-        </div>
+        </animated.div>
     );
 }

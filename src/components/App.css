@@ -36,6 +36,8 @@ p {
   font-size: 50px;
   box-shadow: 3px 0px 8px 3px #444;
   user-select: none;
+  transform-style: preserve-3d;
+
 }
 
 .card.face-up {

@@ -102,32 +102,36 @@ export default function PairsGame() {
         }
     }
 
-    function handleClickCard(c: Card) {
-        if (turnStatus.title === 'twoTurned') {
+    /** @returns true if the click revealed a card */
+    function handleClickCard(c: Card): boolean {
+        const status = turnStatus.title;
+
+        if (status === 'twoTurned') {
             handleClickWhenTwoCardsFaceUp();
-            return;
+            return false;
         }
 
         if (c.isRemoved) {
             console.error('Clicked card which has been removed!');
-            return;
+            return false;
         }
 
         if (c.isFaceUp) {
-            return;
+            return false;
         }
-
+        //TODO: don't mutate card
         c.isFaceUp = true;
         setClickCount(prev => prev + 1);
 
-        if (turnStatus.title === 'noneTurned') {
+        if (status === 'noneTurned') {
             setTurnStatus({ title: 'oneTurned', firstCard: c });
-            return;
+            return true;
         }
-        if (turnStatus.title === 'oneTurned') {
+        if (status === 'oneTurned') {
             setTurnStatus({ title: 'twoTurned', firstCard: turnStatus.firstCard, secondCard: c });
-            return;
+            return true;
         }
+        return false;
     }
 
 
