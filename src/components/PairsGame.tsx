@@ -13,18 +13,19 @@ type TurnStatus =
 
 export default function PairsGame() {
 
-    const [timeSinceFirstLoad, setTimeSinceFirstLoad] = useState(0);
-    const [timeOfGameStart, setTimeOfGameStart] = useState<null | number>(null);
-    const [clickCount, setClickCount] = useState(0);
+    const [deck, setDeck] = useState<Card[]>(makeEmojisDeck());
     const [turnStatus, setTurnStatus] = useState<TurnStatus>({
         title: 'noneTurned'
     });
 
+    const [timeSinceFirstLoad, setTimeSinceFirstLoad] = useState(0);
+    const [timeOfGameStart, setTimeOfGameStart] = useState<null | number>(null);
     const [leaderboard, setLeaderboard] = useState<Leaderboard>([]);
-    const [deck, setDeck] = useState<Card[]>(makeEmojisDeck());
+    const [clickCount, setClickCount] = useState(0);
+
     // const rPressed= useKeyPress("r", handleKeyDown);
 
-    //increase timeSinceFirstLoad
+    //increase timeSinceFirstLoad.  TODO: use useInterval
     useEffect(() => {
         const interval = setInterval(() => {
             setTimeSinceFirstLoad(et => et + 1);
@@ -33,14 +34,15 @@ export default function PairsGame() {
     }, []);
 
     function resetGame() {
+
         setClickCount(0);
         setDeck(makeEmojisDeck());
         setTurnStatus({ title: 'noneTurned' });
         setTimeOfGameStart(timeSinceFirstLoad);
     }
 
-    function cardsRemain() {
-        return deck.filter(c => !c.isRemoved).length > 0;
+    function cardsRemain(givenDeck: Card[]) {
+        return givenDeck.some(c => !c.isRemoved);
     }
 
     function processScore() {
@@ -65,23 +67,34 @@ export default function PairsGame() {
     function handleClickWhenTwoCardsFaceUp() {
 
         if (turnStatus.title === 'twoTurned') {
-            const { firstCard: a, secondCard: b } = turnStatus;
-            if (a.emoji === b.emoji) {
-                //TODO: don't mutate card states
-                a.isRemoved = true;
-                b.isRemoved = true;
+
+            //we make copies rather than reference cards in original deck
+            const pickedCards: [Card, Card] = [
+                { ...deck.find(c => c.id === turnStatus.firstCard.id)! },
+                { ...deck.find(c => c.id === turnStatus.secondCard.id)! }
+            ]
+
+            if (pickedCards[0].emoji === pickedCards[1].emoji) {
+                pickedCards.forEach(c => c.isRemoved = true)
             }
             //in either case, unflip.
-            a.isFaceUp = false;
-            b.isFaceUp = false;
+            pickedCards.forEach(c => c.isFaceUp = false)
+
+            const newDeck = replaceCardsInDeck(pickedCards, deck);
+            setDeck(newDeck)
             setTurnStatus({ title: 'noneTurned' });
-            if (!cardsRemain()) {
+
+            if (!cardsRemain(newDeck)) {
                 processScore();
                 resetGame();
             }
         }
     }
 
+
+    function replaceCardsInDeck(replacements: Card[], deck: Card[]): Card[] {
+        return deck.map(c => replacements.find(pc => pc.id === c.id) ?? c)
+    }
     function handleClickOnMat() {
         if (turnStatus.title === 'twoTurned') {
             handleClickWhenTwoCardsFaceUp();
