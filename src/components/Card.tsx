@@ -18,6 +18,8 @@ export function CardView(props: CardProps) {
     })
     )
 
+    //Something to aim for, perhaps: https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_flip_card
+
     return (
         <animated.div
             style={{ ...springs }}
