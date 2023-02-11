@@ -4,22 +4,21 @@ export interface CardProps {
     handleClickCard: (c: Card) => void;
     card: Card;
 }
-export function CardView(props: CardProps) {
+export function CardView({ card, handleClickCard }: CardProps) {
     return (
         <div
             onClick={(event) => {
                 event.stopPropagation();
-                props.handleClickCard(props.card);
+                handleClickCard(card);
             }}
             className={
                 'card ' +
-                (props.card.isFaceUp ? 'face-up' : '') +
+                (card.isFaceUp ? 'face-up' : '') +
                 ' ' +
-                (props.card.isRemoved ? 'removed' : '')
+                (card.isRemoved ? 'removed' : '')
             }
         >
-            {!props.card.isRemoved && props.card.isFaceUp && props.card.emoji}
-            {/* {!props.card.isRemoved && props.card.emoji} */}
+            {!card.isRemoved && card.isFaceUp && card.emoji}
         </div>
     );
 }
