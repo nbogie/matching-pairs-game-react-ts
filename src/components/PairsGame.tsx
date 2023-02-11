@@ -1,24 +1,17 @@
 import { useMemo, useReducer } from 'react';
 import { Card } from "../core/card";
-import { GameState } from '../core/gameState';
+import { createInitialGameState, GameState } from '../core/gameState';
 import { reducerFn } from '../reducer/reducer';
 import { CardView } from './CardView';
-import { makeEmojisDeck } from './Deck';
 
 export default function PairsGame() {
 
     const initialState: GameState = useMemo(() => {
-        return {
-            clickCount: 0,
-            turnStatus: {
-                title: 'noneTurned'
-            },
-            deck: makeEmojisDeck(),
-            leaderboard: []
-        }
+        return createInitialGameState()
     }, []);
 
     const [gameState, dispatch] = useReducer(reducerFn, initialState);
+
     function handleClickOnMat() {
         if (gameState.turnStatus.title === 'twoTurned') {
             dispatch({ type: 'clickAcknowledge' })
