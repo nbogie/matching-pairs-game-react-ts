@@ -1,4 +1,4 @@
-import { Card } from "../card";
+import { Card, CardState } from "../core/card";
 
 export interface CardProps {
     handleClickCard: (c: Card) => void;
@@ -11,14 +11,18 @@ export function CardView({ card, handleClickCard }: CardProps) {
                 event.stopPropagation();
                 handleClickCard(card);
             }}
-            className={
-                'card ' +
-                (card.isFaceUp ? 'face-up' : '') +
-                ' ' +
-                (card.isRemoved ? 'removed' : '')
-            }
+            className={'card ' + classForCardState(card.state)}
         >
-            {!card.isRemoved && card.isFaceUp && card.emoji}
+            {card.state === "faceUp" && card.emoji}
         </div>
     );
+}
+
+function classForCardState(cs: CardState): string {
+    const lookup: Record<CardState, string> = {
+        "faceUp": 'face-up',
+        "removed": "removed",
+        "faceDown": ""
+    };
+    return lookup[cs]
 }

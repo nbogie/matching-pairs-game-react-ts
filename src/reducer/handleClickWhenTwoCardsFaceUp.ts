@@ -1,12 +1,10 @@
 import { Draft } from "immer";
-import { Card } from "../card";
-import { GameState } from "../gameState";
+import { Card } from "../core/card";
+import { GameState } from "../core/gameState";
 import { handleResetGame } from "./handleResetGame";
 
 
-
 export function handleClickWhenTwoCardsFaceUp(draftGameState: Draft<GameState>): void {
-
     if (draftGameState.turnStatus.title !== 'twoTurned') {
         return;
     }
@@ -16,12 +14,10 @@ export function handleClickWhenTwoCardsFaceUp(draftGameState: Draft<GameState>):
     const pickedCardsInDeck = draftGameState.deck.filter(c => [a.id, b.id].includes(c.id));
 
     if (a.emoji === b.emoji) {
-        pickedCardsInDeck.forEach(c => c.isRemoved = true);
+        pickedCardsInDeck.forEach(c => c.state = "removed");
+    } else {
+        pickedCardsInDeck.forEach(c => c.state = "faceDown");
     }
-
-    //in either case, unflip.
-    pickedCardsInDeck.forEach(c => c.isFaceUp = false);
-
     if (!cardsRemain(draftGameState.deck)) {
         handleResetGame(draftGameState);
         return;
@@ -31,5 +27,5 @@ export function handleClickWhenTwoCardsFaceUp(draftGameState: Draft<GameState>):
 }
 
 function cardsRemain(deck: Card[]): boolean {
-    return deck.filter((c: Card) => !c.isRemoved).length > 0;
+    return deck.filter((c: Card) => c.state !== "removed").length > 0;
 }

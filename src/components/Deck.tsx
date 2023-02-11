@@ -1,5 +1,5 @@
-import { Card } from "../card";
-import emojis, { Emoji } from '../emojis';
+import { Card } from "../core/card";
+import emojis, { Emoji } from '../core/emojis';
 
 export function makeEmojisDeck(): Card[] {
     const emojisToUse = [...emojis]
@@ -7,7 +7,7 @@ export function makeEmojisDeck(): Card[] {
         .slice(0, 8); //take 8 emojis.  We'll instantiate double to make the deck.
 
     function makeEmojiCard(e: Emoji, id: number): Card {
-        return { emoji: e, id, isFaceUp: false, isRemoved: false };
+        return { emoji: e, id, state: "faceDown" };
     }
 
     return shuffle(

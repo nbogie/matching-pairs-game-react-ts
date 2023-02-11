@@ -1,6 +1,6 @@
 import { useMemo, useReducer } from 'react';
-import { Card } from "../card";
-import { GameState } from '../gameState';
+import { Card } from "../core/card";
+import { GameState } from '../core/gameState';
 import { reducerFn } from '../reducer/reducer';
 import { CardView } from './CardView';
 import { makeEmojisDeck } from './Deck';

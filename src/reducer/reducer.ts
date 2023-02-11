@@ -1,5 +1,5 @@
-import { Card } from "../card";
-import { GameState } from "../gameState";
+import { Card } from "../core/card";
+import { GameState } from "../core/gameState";
 import produce from "immer"
 import { handleFlipCard } from "./handleFlipCard";
 import { handleClickWhenTwoCardsFaceUp } from "./handleClickWhenTwoCardsFaceUp";

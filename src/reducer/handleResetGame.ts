@@ -1,5 +1,5 @@
 import { makeEmojisDeck } from "../components/Deck";
-import { GameState } from "../gameState";
+import { GameState } from "../core/gameState";
 import { Draft } from "immer";
 
 

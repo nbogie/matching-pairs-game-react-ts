@@ -1,4 +1,4 @@
-import { GameState } from "../gameState";
+import { GameState } from "../core/gameState";
 import { Draft } from "immer";
 import { FlipCardAction } from "./reducer";
 
@@ -10,12 +10,12 @@ export function handleFlipCard(draftGameState: Draft<GameState>, action: FlipCar
         return;
     }
 
-    if (action.card.isRemoved) {
+    if (action.card.state === "removed") {
         console.error('Clicked card which has been removed!');
         return;
     }
 
-    if (action.card.isFaceUp) {
+    if (action.card.state === "faceUp") {
         return;
     }
 
@@ -23,7 +23,7 @@ export function handleFlipCard(draftGameState: Draft<GameState>, action: FlipCar
         //Don't mutate the card - this will cause the reducer not to be pure, and second time through processing 
         //(in strict mode) the action card will be face up, causing issues
         const card = draftGameState.deck.find(c => c.id === action.card.id)!;
-        card.isFaceUp = true;
+        card.state = "faceUp"
         draftGameState.turnStatus = { title: 'oneTurned', firstCard: action.card };
         draftGameState.clickCount++;
         return;
@@ -31,7 +31,7 @@ export function handleFlipCard(draftGameState: Draft<GameState>, action: FlipCar
 
     if (draftGameState.turnStatus.title === 'oneTurned') {
         const card = draftGameState.deck.find(c => c.id === action.card.id)!;
-        card.isFaceUp = true;
+        card.state = "faceUp"
         draftGameState.turnStatus = {
             title: 'twoTurned',
             firstCard: draftGameState.turnStatus.firstCard,
