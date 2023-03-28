@@ -1,28 +1,22 @@
-import { useMemo, useReducer } from 'react';
-import { createInitialGameState, GameState } from '../core/gameState';
-import { reducerFn } from '../reducer/reducer';
-import { CardsView } from './CardsView';
+import { clickAcknowledge } from "../features/gameSlice";
+import { CardsView } from "./CardsView";
+import { useAppSelector, useAppDispatch } from "../app/hooks";
 
 export default function PairsGame() {
-
-    const initialState: GameState = useMemo(() => {
-        return createInitialGameState()
-    }, []);
-
-    const [gameState, dispatch] = useReducer(reducerFn, initialState);
+    const gameState = useAppSelector((state) => state.game);
+    const dispatch = useAppDispatch();
 
     function handleClickOnMat() {
-        if (gameState.turnStatus.title === 'twoTurned') {
-            dispatch({ type: 'clickAcknowledge' })
+        if (gameState.turnStatus.title === "twoTurned") {
+            dispatch(clickAcknowledge());
         }
     }
 
     return (
         <div className="mat" onClick={handleClickOnMat}>
-            <CardsView gameState={gameState} dispatch={dispatch} />
+            <CardsView />
             <div>TurnStatus: {gameState.turnStatus.title}</div>
             <div>Click count: {gameState.clickCount}</div>
         </div>
     );
 }
-
