@@ -21,8 +21,8 @@ export function CardView({ card, handleClickCard }: CardProps) {
 function classForCardState(cs: CardState): string {
     const lookup: Record<CardState, string> = {
         "faceUp": 'face-up',
-        "removed": "removed",
-        "faceDown": ""
+        "faceDown": "face-down",
+        "removed": "removed"
     };
     return lookup[cs]
 }

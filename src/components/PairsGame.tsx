@@ -1,8 +1,7 @@
 import { useMemo, useReducer } from 'react';
-import { Card } from "../core/card";
 import { createInitialGameState, GameState } from '../core/gameState';
 import { reducerFn } from '../reducer/reducer';
-import { CardView } from './CardView';
+import { CardsView } from './CardsView';
 
 export default function PairsGame() {
 
@@ -18,24 +17,12 @@ export default function PairsGame() {
         }
     }
 
-    function handleClickCard(c: Card) {
-        if (gameState.turnStatus.title === 'twoTurned') {
-            dispatch({ type: 'clickAcknowledge' })
-        } else {
-            dispatch({ type: 'flipCard', card: c })
-        }
-    }
-
-
     return (
         <div className="mat" onClick={handleClickOnMat}>
-            <div className="cardset">
-                {gameState.deck.map((c: Card, ix: number) => (
-                    <CardView card={c} key={ix} handleClickCard={handleClickCard} />
-                ))}
-            </div>
+            <CardsView gameState={gameState} dispatch={dispatch} />
             <div>TurnStatus: {gameState.turnStatus.title}</div>
             <div>Click count: {gameState.clickCount}</div>
         </div>
     );
 }
+
