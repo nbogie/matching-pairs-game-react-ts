@@ -1,7 +1,7 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 import { Card } from "../core/card";
-import { makeEmojisDeck } from "../core/deck";
+import { makeEmojisDeck } from "../core/makeEmojisDeck";
 import { handleClickWhenTwoCardsFaceUp } from "./gameSlice/handleClickWhenTwoCardsFaceUp";
 import { handleFlipCard } from "./gameSlice/handleFlipCard";
 import { handleResetGame } from "./gameSlice/handleResetGame";

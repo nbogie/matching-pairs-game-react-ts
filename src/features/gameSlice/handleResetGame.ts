@@ -1,4 +1,4 @@
-import { makeEmojisDeck } from "../../core/deck";
+import { makeEmojisDeck } from "../../core/makeEmojisDeck";
 import { GameState } from "../gameSlice";
 
 export function handleResetGame(gs: GameState): void {
