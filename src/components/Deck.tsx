@@ -1,5 +1,5 @@
 import { Card } from "../gameCore/card";
-import emojis, { Emoji } from '../gameCore/emojis';
+import emojis, { Emoji } from "../gameCore/emojis";
 
 export function makeEmojisDeck(): Card[] {
     const emojisToUse = [...emojis]
@@ -13,13 +13,11 @@ export function makeEmojisDeck(): Card[] {
     return shuffle(
         emojisToUse.flatMap((e, ix) => [
             makeEmojiCard(e, 2 * ix),
-            makeEmojiCard(e, 2 * ix + 1)
+            makeEmojiCard(e, 2 * ix + 1),
         ])
     );
 }
 
-
 function shuffle<T>(arr: T[]): T[] {
     return [...arr].sort((a, b) => Math.random() - 0.5);
 }
-
