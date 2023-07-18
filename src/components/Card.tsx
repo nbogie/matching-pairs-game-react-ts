@@ -17,10 +17,10 @@ export function CardView(props: CardProps) {
                 props.handleClickCard(props.card);
             }}
             className={
-                'card ' +
-                (props.card.isFaceUp ? 'face-up' : '') +
-                ' ' +
-                (props.card.isRemoved ? 'removed' : '')
+                "card " +
+                (props.card.isFaceUp ? "face-up" : "") +
+                " " +
+                (props.card.isRemoved ? "removed" : "")
             }
         >
             {!props.card.isRemoved && props.card.isFaceUp && props.card.emoji}

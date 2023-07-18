@@ -1,21 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Leaderboard, LeaderboardEntry, LeaderboardView } from './Leaderboard';
-import { Card, CardView } from './Card';
-import { makeEmojisDeck } from './Deck';
+import React, { useEffect, useState } from "react";
+import { Leaderboard, LeaderboardEntry, LeaderboardView } from "./Leaderboard";
+import { Card, CardView } from "./Card";
+import { makeEmojisDeck } from "./Deck";
 // import { useKeyPress } from './useKeyPress';
 
 //differentiated union type
 /** Whether a card has been turned, or two, or none yet.*/
 type TurnStatus =
-    | { title: 'noneTurned' }
-    | { title: 'oneTurned'; firstCard: Card }
-    | { title: 'twoTurned'; firstCard: Card; secondCard: Card };
+    | { title: "noneTurned" }
+    | { title: "oneTurned"; firstCard: Card }
+    | { title: "twoTurned"; firstCard: Card; secondCard: Card };
 
 export default function PairsGame() {
-
     const [deck, setDeck] = useState<Card[]>(makeEmojisDeck());
     const [turnStatus, setTurnStatus] = useState<TurnStatus>({
-        title: 'noneTurned'
+        title: "noneTurned",
     });
 
     const [timeSinceFirstLoad, setTimeSinceFirstLoad] = useState(0);
@@ -28,30 +27,33 @@ export default function PairsGame() {
     //increase timeSinceFirstLoad.  TODO: use useInterval
     useEffect(() => {
         const interval = setInterval(() => {
-            setTimeSinceFirstLoad(et => et + 1);
-        }, 1000)
+            setTimeSinceFirstLoad((et) => et + 1);
+        }, 1000);
         return () => clearInterval(interval);
     }, []);
 
     function resetGame() {
-
         setClickCount(0);
         setDeck(makeEmojisDeck());
-        setTurnStatus({ title: 'noneTurned' });
+        setTurnStatus({ title: "noneTurned" });
         setTimeOfGameStart(timeSinceFirstLoad);
     }
 
     function cardsRemain(givenDeck: Card[]) {
-        return givenDeck.some(c => !c.isRemoved);
+        return givenDeck.some((c) => !c.isRemoved);
     }
 
     function processScore() {
-        const entry: LeaderboardEntry = { elapsedTime: timeSinceFirstLoad - (timeOfGameStart || 0), clickCount, at: new Date() };
+        const entry: LeaderboardEntry = {
+            elapsedTime: timeSinceFirstLoad - (timeOfGameStart || 0),
+            clickCount,
+            at: new Date(),
+        };
         setLeaderboard((prevBoard: Leaderboard) => {
             const newBoard = [...prevBoard, entry];
-            newBoard.sort((e1, e2) => e1.elapsedTime - e2.elapsedTime)
+            newBoard.sort((e1, e2) => e1.elapsedTime - e2.elapsedTime);
             return newBoard;
-        })
+        });
     }
 
     // function handleKeyDown() {
@@ -65,24 +67,22 @@ export default function PairsGame() {
     // }
 
     function handleClickWhenTwoCardsFaceUp() {
-
-        if (turnStatus.title === 'twoTurned') {
-
+        if (turnStatus.title === "twoTurned") {
             //we make copies rather than reference cards in original deck
             const pickedCards: [Card, Card] = [
-                { ...deck.find(c => c.id === turnStatus.firstCard.id)! },
-                { ...deck.find(c => c.id === turnStatus.secondCard.id)! }
-            ]
+                { ...deck.find((c) => c.id === turnStatus.firstCard.id)! },
+                { ...deck.find((c) => c.id === turnStatus.secondCard.id)! },
+            ];
 
             if (pickedCards[0].emoji === pickedCards[1].emoji) {
-                pickedCards.forEach(c => c.isRemoved = true)
+                pickedCards.forEach((c) => (c.isRemoved = true));
             }
             //in either case, unflip.
-            pickedCards.forEach(c => c.isFaceUp = false)
+            pickedCards.forEach((c) => (c.isFaceUp = false));
 
             const newDeck = replaceCardsInDeck(pickedCards, deck);
-            setDeck(newDeck)
-            setTurnStatus({ title: 'noneTurned' });
+            setDeck(newDeck);
+            setTurnStatus({ title: "noneTurned" });
 
             if (!cardsRemain(newDeck)) {
                 processScore();
@@ -91,25 +91,24 @@ export default function PairsGame() {
         }
     }
 
-
     function replaceCardsInDeck(replacements: Card[], deck: Card[]): Card[] {
-        return deck.map(c => replacements.find(pc => pc.id === c.id) ?? c)
+        return deck.map((c) => replacements.find((pc) => pc.id === c.id) ?? c);
     }
     function handleClickOnMat() {
-        if (turnStatus.title === 'twoTurned') {
+        if (turnStatus.title === "twoTurned") {
             handleClickWhenTwoCardsFaceUp();
             return;
         }
     }
 
     function handleClickCard(c: Card) {
-        if (turnStatus.title === 'twoTurned') {
+        if (turnStatus.title === "twoTurned") {
             handleClickWhenTwoCardsFaceUp();
             return;
         }
 
         if (c.isRemoved) {
-            console.error('Clicked card which has been removed!');
+            console.error("Clicked card which has been removed!");
             return;
         }
 
@@ -118,29 +117,38 @@ export default function PairsGame() {
         }
 
         c.isFaceUp = true;
-        setClickCount(prev => prev + 1);
+        setClickCount((prev) => prev + 1);
 
-        if (turnStatus.title === 'noneTurned') {
-            setTurnStatus({ title: 'oneTurned', firstCard: c });
+        if (turnStatus.title === "noneTurned") {
+            setTurnStatus({ title: "oneTurned", firstCard: c });
             return;
         }
-        if (turnStatus.title === 'oneTurned') {
-            setTurnStatus({ title: 'twoTurned', firstCard: turnStatus.firstCard, secondCard: c });
+        if (turnStatus.title === "oneTurned") {
+            setTurnStatus({
+                title: "twoTurned",
+                firstCard: turnStatus.firstCard,
+                secondCard: c,
+            });
             return;
         }
     }
-
 
     return (
         <div className="mat" onClick={handleClickOnMat}>
             <div className="cardset">
                 {deck.map((c, ix) => (
-                    <CardView card={c} key={ix} handleClickCard={handleClickCard} />
+                    <CardView
+                        card={c}
+                        key={ix}
+                        handleClickCard={handleClickCard}
+                    />
                 ))}
             </div>
             <div>TurnStatus: {turnStatus.title}</div>
             <div>Click count: {clickCount}</div>
-            {timeOfGameStart && <div>Elapsed Time: {timeSinceFirstLoad - timeOfGameStart}</div>}
+            {timeOfGameStart && (
+                <div>Elapsed Time: {timeSinceFirstLoad - timeOfGameStart}</div>
+            )}
             <LeaderboardView leaderboard={leaderboard} />
         </div>
     );
