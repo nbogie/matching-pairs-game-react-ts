@@ -1,4 +1,4 @@
-import { useSpring, animated } from '@react-spring/web'
+import { useSpring, animated } from "@react-spring/web";
 
 export interface Card {
     isFaceUp: boolean;
@@ -14,9 +14,8 @@ export interface CardProps {
 export function CardView(props: CardProps) {
     const [springs, api] = useSpring(() => ({
         from: { scale: 1.2, transform: "rotateY(0deg)" },
-        to: { scale: 1 }
-    })
-    )
+        to: { scale: 1 },
+    }));
 
     //Something to aim for, perhaps: https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_flip_card
 
@@ -26,16 +25,17 @@ export function CardView(props: CardProps) {
             onClick={(event) => {
                 event.stopPropagation();
                 const revealedACard = props.handleClickCard(props.card);
-                revealedACard && api.start({
-                    from: { scale: 1.2, transform: "rotateY(0deg)" },
-                    to: { scale: 1, transform: "rotateY(180deg)" }
-                });
+                revealedACard &&
+                    api.start({
+                        from: { scale: 1.2, transform: "rotateY(0deg)" },
+                        to: { scale: 1, transform: "rotateY(180deg)" },
+                    });
             }}
             className={
-                'card ' +
-                (props.card.isFaceUp ? 'face-up' : '') +
-                ' ' +
-                (props.card.isRemoved ? 'removed' : '')
+                "card " +
+                (props.card.isFaceUp ? "face-up" : "") +
+                " " +
+                (props.card.isRemoved ? "removed" : "")
             }
         >
             {!props.card.isRemoved && props.card.isFaceUp && props.card.emoji}
