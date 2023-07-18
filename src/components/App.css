@@ -1,86 +1,91 @@
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+        "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+        "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: green;
-  margin: 0 auto;
-  max-width: 1000px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    background: green;
+    margin: 0 auto;
+    max-width: 1000px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 #root {
-  display: flex;
-  place-items: center;
-  height: 100vh;
+    display: flex;
+    place-items: center;
+    height: 100vh;
 }
 
 h1,
 p {
-  font-family: Lato;
+    font-family: Lato;
 }
 
 .card {
-  border: 4px solid rgb(138, 235, 135);
-  border-radius: 5px;
-  padding: 10px;
-  font-weight: bold;
-  margin: 10px;
-  background: rgba(0, 0, 0, 0.3);
-  font-size: 50px;
-  box-shadow: 3px 0px 8px 3px #444;
-  user-select: none;
+    border: 4px solid rgb(138, 235, 135);
+    border-radius: 5px;
+    padding: 10px;
+    font-weight: bold;
+    margin: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    font-size: 50px;
+    box-shadow: 3px 0px 8px 3px #444;
+    user-select: none;
 }
 
 .card.face-up {
-  background: white;
+    background: white;
 }
 
 .card.removed {
-  background: green;
-  border-color: green;
-  box-shadow: none;
+    background: green;
+    border-color: green;
+    box-shadow: none;
 }
 
 .card.face-down {
-  /* https://www.magicpattern.design/tools/css-backgrounds */
-  background-color: #307933;
-  opacity: 0.8;
-  background: repeating-linear-gradient(-45deg,
-      #13ca59, #005c02 4px, #e7f7e5 4px, #e8f7e5 10px);
+    /* https://www.magicpattern.design/tools/css-backgrounds */
+    background-color: #307933;
+    opacity: 0.8;
+    background: repeating-linear-gradient(
+        -45deg,
+        #13ca59,
+        #005c02 4px,
+        #e7f7e5 4px,
+        #e8f7e5 10px
+    );
 }
 
 .grid-square {
-  padding: 10px;
-  box-shadow: inset 0 1px 5px -2px rgba(0, 0, 0, 0.2),
-    inset 1px -2px 4px -1px rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    box-shadow:
+        inset 0 1px 5px -2px rgba(0, 0, 0, 0.2),
+        inset 1px -2px 4px -1px rgba(0, 0, 0, 0.2);
 }
 
 .mat {
-
-  margin-top: 20px;
-  border: 8px solid #44444470;
-  border-radius: 8px;
-  padding: 10px;
-  min-width: 410px;
-  max-width: 410px;
-  box-shadow: 4px 1px 10px 10px rgba(0, 0, 0, 0.3);
+    margin-top: 20px;
+    border: 8px solid #44444470;
+    border-radius: 8px;
+    padding: 10px;
+    min-width: 410px;
+    max-width: 410px;
+    box-shadow: 4px 1px 10px 10px rgba(0, 0, 0, 0.3);
 }
 
 .cardset {
-  border: 2px solid green;
-  display: grid;
-  grid-template-columns: repeat(4, 100px);
-  grid-template-rows: repeat(4, 100px);
-  grid-gap: 3px;
+    border: 2px solid green;
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(4, 100px);
+    grid-gap: 3px;
 }
 
 button.hide {
-  display: none;
+    display: none;
 }

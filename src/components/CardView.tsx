@@ -11,7 +11,7 @@ export function CardView({ card, handleClickCard }: CardProps) {
                 event.stopPropagation();
                 handleClickCard(card);
             }}
-            className={'card ' + classForCardState(card.state)}
+            className={"card " + classForCardState(card.state)}
         >
             {card.state === "faceUp" && card.emoji}
         </div>
@@ -20,9 +20,9 @@ export function CardView({ card, handleClickCard }: CardProps) {
 
 function classForCardState(cs: CardState): string {
     const lookup: Record<CardState, string> = {
-        "faceUp": 'face-up',
-        "faceDown": "face-down",
-        "removed": "removed"
+        faceUp: "face-up",
+        faceDown: "face-down",
+        removed: "removed",
     };
-    return lookup[cs]
+    return lookup[cs];
 }
