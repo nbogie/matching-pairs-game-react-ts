@@ -1,7 +1,7 @@
 import { Dispatch } from "react";
 import { Card } from "../core/card";
 import { GameState } from "../core/gameState";
-import { Action } from "../reducer/reducer";
+import { Action } from "../reducer/actions";
 import { CardView } from "./CardView";
 
 interface CardsViewProps {

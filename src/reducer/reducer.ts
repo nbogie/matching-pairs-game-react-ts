@@ -1,9 +1,9 @@
-import { Card } from "../core/card";
 import { GameState } from "../core/gameState";
 import produce from "immer";
 import { handleFlipCard } from "./handleFlipCard";
 import { handleClickWhenTwoCardsFaceUp } from "./handleClickWhenTwoCardsFaceUp";
 import { handleResetGame } from "./handleResetGame";
+import { Action } from "./actions";
 
 export function reducerFn(gameState: GameState, action: Action): GameState {
     //use immer's produce() function to allow us to manipulate a draftGameState and magically get a
@@ -38,9 +38,3 @@ class UnreachableCodeError extends Error {
         super(message);
     }
 }
-
-export type FlipCardAction = { type: "flipCard"; card: Card };
-type AcknowledgeAction = { type: "clickAcknowledge" };
-type ResetAction = { type: "reset" };
-
-export type Action = ResetAction | FlipCardAction | AcknowledgeAction;

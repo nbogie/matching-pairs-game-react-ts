@@ -1,6 +1,6 @@
 import { GameState } from "../core/gameState";
 import { Draft } from "immer";
-import { FlipCardAction } from "./reducer";
+import { FlipCardAction } from "./actions";
 
 export function handleFlipCard(
     draftGameState: Draft<GameState>,
