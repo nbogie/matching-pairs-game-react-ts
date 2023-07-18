@@ -1,5 +1,5 @@
-import { Card } from "./Card";
-import emojis, { Emoji } from "../emojis";
+import { Card } from "./components/Card";
+import emojis, { Emoji } from "./emojis";
 
 export function makeEmojisDeck(): Card[] {
     const emojisToUse = [...emojis]
