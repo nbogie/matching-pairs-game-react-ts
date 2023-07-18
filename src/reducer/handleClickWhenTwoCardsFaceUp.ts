@@ -1,6 +1,6 @@
 import { Card } from "../gameCore/card";
 import { GameState } from "../gameCore/gameState";
-import { replaceCard } from "./reducer";
+import { replaceCard } from "../gameCore/replaceCard";
 import { handleResetGame } from "./handleResetGame";
 
 export function handleClickWhenTwoCardsFaceUp(gs: GameState): GameState {
