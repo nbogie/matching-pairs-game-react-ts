@@ -17,7 +17,17 @@ export function reducerFn(gameState: GameState, action: Action): GameState {
         case "flipCard": {
             return handleFlipCard(gameState, action);
         }
+
         default:
-            throw new Error("should never reach this point");
+            throw new UnreachableCodeError(
+                action,
+                `unexpected action: ${JSON.stringify(action)}`
+            );
+    }
+}
+
+class UnreachableCodeError extends Error {
+    constructor(myNever: never, message: string) {
+        super(message);
     }
 }
