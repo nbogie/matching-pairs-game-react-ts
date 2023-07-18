@@ -1,5 +1,5 @@
 import { Card } from "./card";
-import { makeEmojisDeck } from "./deck";
+import { makeEmojisDeck } from "./makeEmojisDeck";
 
 //differentiated union type
 /** Whether a card has been turned, or two, or none yet.*/

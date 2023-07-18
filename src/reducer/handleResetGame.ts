@@ -1,4 +1,4 @@
-import { makeEmojisDeck } from "../core/deck";
+import { makeEmojisDeck } from "../core/makeEmojisDeck";
 import { GameState } from "../core/gameState";
 import { Draft } from "immer";
 
