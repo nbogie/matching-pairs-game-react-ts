@@ -1,19 +1,18 @@
-import { useMemo, useReducer } from 'react';
-import { createInitialGameState, GameState } from '../core/gameState';
-import { reducerFn } from '../reducer/reducer';
-import { CardsView } from './CardsView';
+import { useMemo, useReducer } from "react";
+import { createInitialGameState, GameState } from "../core/gameState";
+import { reducerFn } from "../reducer/reducer";
+import { CardsView } from "./CardsView";
 
 export default function PairsGame() {
-
     const initialState: GameState = useMemo(() => {
-        return createInitialGameState()
+        return createInitialGameState();
     }, []);
 
     const [gameState, dispatch] = useReducer(reducerFn, initialState);
 
     function handleClickOnMat() {
-        if (gameState.turnStatus.title === 'twoTurned') {
-            dispatch({ type: 'clickAcknowledge' })
+        if (gameState.turnStatus.title === "twoTurned") {
+            dispatch({ type: "clickAcknowledge" });
         }
     }
 
@@ -25,4 +24,3 @@ export default function PairsGame() {
         </div>
     );
 }
-

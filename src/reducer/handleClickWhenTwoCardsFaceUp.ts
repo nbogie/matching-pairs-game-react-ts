@@ -3,27 +3,30 @@ import { Card } from "../core/card";
 import { GameState } from "../core/gameState";
 import { handleResetGame } from "./handleResetGame";
 
-
-export function handleClickWhenTwoCardsFaceUp(draftGameState: Draft<GameState>): void {
-    if (draftGameState.turnStatus.title !== 'twoTurned') {
+export function handleClickWhenTwoCardsFaceUp(
+    draftGameState: Draft<GameState>
+): void {
+    if (draftGameState.turnStatus.title !== "twoTurned") {
         return;
     }
 
     const { firstCard: a, secondCard: b } = draftGameState.turnStatus;
     //we want to manipulate the cards in the deck, not the cards in the turnStatus
-    const pickedCardsInDeck = draftGameState.deck.filter(c => [a.id, b.id].includes(c.id));
+    const pickedCardsInDeck = draftGameState.deck.filter((c) =>
+        [a.id, b.id].includes(c.id)
+    );
 
     if (a.emoji === b.emoji) {
-        pickedCardsInDeck.forEach(c => c.state = "removed");
+        pickedCardsInDeck.forEach((c) => (c.state = "removed"));
     } else {
-        pickedCardsInDeck.forEach(c => c.state = "faceDown");
+        pickedCardsInDeck.forEach((c) => (c.state = "faceDown"));
     }
     if (!cardsRemain(draftGameState.deck)) {
         handleResetGame(draftGameState);
         return;
     }
 
-    draftGameState.turnStatus = { title: 'noneTurned' };
+    draftGameState.turnStatus = { title: "noneTurned" };
 }
 
 function cardsRemain(deck: Card[]): boolean {
