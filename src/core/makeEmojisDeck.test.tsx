@@ -1,8 +1,6 @@
-import { Emoji } from "../emojis";
-import { Card } from "./Card";
-import { makeEmojisDeck } from "./Deck";
+import { makeEmojisDeck } from "./makeEmojisDeck";
 
-test("makeEmojisDeck", () => {
+test("makeEmojisDeck gens right len", () => {
     expect(makeEmojisDeck()).toHaveLength(16);
 });
 

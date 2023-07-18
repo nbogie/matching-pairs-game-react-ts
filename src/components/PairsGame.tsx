@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Leaderboard, LeaderboardEntry, LeaderboardView } from "./Leaderboard";
 import { Card, CardView } from "./Card";
-import { makeEmojisDeck } from "./Deck";
 import useSound from "use-sound";
 import matchSound from "../sounds/match.wav";
+import { makeEmojisDeck } from "../core/makeEmojisDeck";
 // import { useKeyPress } from './useKeyPress';
 
 //differentiated union type
