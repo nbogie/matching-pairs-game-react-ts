@@ -17,9 +17,7 @@ export function CardView(props: CardProps) {
                 event.stopPropagation();
                 props.handleClickCard(props.card);
             }}
-            className={
-                'card ' + props.card.status
-            }
+            className={"card " + props.card.status}
         >
             {props.card.status === "face-up" && props.card.emoji}
         </div>
