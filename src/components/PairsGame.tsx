@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { Leaderboard, LeaderboardEntry, LeaderboardView } from "./Leaderboard";
-import { Card, CardView } from "./Card";
-import { makeEmojisDeck } from "./Deck";
+import { useEffect, useState } from "react";
 import { useImmer } from "use-immer";
+import { Card, CardView } from "./Card";
+import { Leaderboard, LeaderboardEntry, LeaderboardView } from "./Leaderboard";
+import { makeEmojisDeck } from "../core/makeEmojisDeck";
 // import { useKeyPress } from './useKeyPress';
 
 //differentiated union type
