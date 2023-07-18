@@ -1,5 +1,5 @@
-import { Card } from "../gameCore/card";
-import allAvailableEmojis, { Emoji } from "../gameCore/emojis";
+import { Card } from "./card";
+import allAvailableEmojis, { Emoji } from "./emojis";
 
 export function makeEmojisDeck(): Card[] {
     //take 8 emojis.  We'll instantiate double to make the deck.

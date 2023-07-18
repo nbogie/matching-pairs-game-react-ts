@@ -1,5 +1,5 @@
 import { GameState } from "./gameState";
-import { makeEmojisDeck } from "../components/Deck";
+import { makeEmojisDeck } from "./makeEmojisDeck";
 
 export function createInitialGameState(): GameState {
     return {
