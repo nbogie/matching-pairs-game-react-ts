@@ -1,10 +1,9 @@
 import { Card } from "../gameCore/card";
-import emojis, { Emoji } from "../gameCore/emojis";
+import allAvailableEmojis, { Emoji } from "../gameCore/emojis";
 
 export function makeEmojisDeck(): Card[] {
-    const emojisToUse = [...emojis]
-        .sort((a, b) => Math.random() - 0.5) //shuffle
-        .slice(0, 8); //take 8 emojis.  We'll instantiate double to make the deck.
+    //take 8 emojis.  We'll instantiate double to make the deck.
+    const emojisToUse = shuffle([...allAvailableEmojis]).slice(0, 8);
 
     function makeEmojiCard(e: Emoji, id: number): Card {
         return { emoji: e, id, isFaceUp: false, isRemoved: false };
@@ -19,5 +18,5 @@ export function makeEmojisDeck(): Card[] {
 }
 
 function shuffle<T>(arr: T[]): T[] {
-    return [...arr].sort((a, b) => Math.random() - 0.5);
+    return [...arr].sort(() => (Math.random() < 0.5 ? -1 : 1));
 }
